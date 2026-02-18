@@ -1,0 +1,26 @@
+# Use an official Python runtime as a parent image
+FROM python:3.11-slim
+
+# Set the working directory to the root of the project
+WORKDIR /app
+
+# Install system dependencies (if any)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the entire project
+COPY . .
+
+# Install the project in editable mode (installs 'src/llm_council')
+RUN pip install -e .
+
+# Install backend-specific dependencies
+RUN pip install -r backend/requirements.txt
+
+# Expose the port the app runs on
+EXPOSE 8000
+
+# Command to run the application
+# We use the array format for better signal handling
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
